@@ -1,3 +1,7 @@
 spring:
   application:
     name: desafio-itau
+
+logging:
+  level:
+    com.erichiroshi: DEBUG
