@@ -5,6 +5,9 @@ import com.erichiroshi.desafio_itau.domain.model.Transacao;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,28 @@ public class TransacaoRepositoryAdapter implements TransacaoRepositoryPort {
         transacaoList.clear();
 
         log.debug("Todas as transações foram deletadas (Local)");
+    }
+
+    @Override
+    public List<Transacao> findAll60Seconds() {
+
+        log.debug("Estatística dos últimos 60 segundos (Local)");
+
+        List<Transacao> list = transacaoList.stream().filter(t ->
+                        t.dataHora().isAfter(OffsetDateTime.now().minusSeconds(60L)))
+                .toList();
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("HH:mm:ss");
+        ZoneId fusoLocal = ZoneId.systemDefault();
+
+        log.debug("timestamps now: {} | list: {}",
+                OffsetDateTime.now().format(fmt),
+                list.stream()
+                        .map(t -> t.dataHora().atZoneSameInstant(fusoLocal).format(fmt))
+                        .toList()
+        );
+
+        return list;
     }
 
 }
