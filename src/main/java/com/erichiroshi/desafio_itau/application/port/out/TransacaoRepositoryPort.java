@@ -5,4 +5,6 @@ import com.erichiroshi.desafio_itau.domain.model.Transacao;
 public interface TransacaoRepositoryPort {
 
     void save(Transacao transacao);
+
+    void deleteAll();
 }

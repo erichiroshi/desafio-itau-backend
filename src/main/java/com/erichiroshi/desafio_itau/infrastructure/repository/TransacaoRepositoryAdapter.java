@@ -24,4 +24,14 @@ public class TransacaoRepositoryAdapter implements TransacaoRepositoryPort {
         log.debug("Transação salva (Local) | {}", transacaoList.getLast());
     }
 
+    @Override
+    public void deleteAll() {
+
+        log.debug("Deletando todas as transações (Local)");
+
+        transacaoList.clear();
+
+        log.debug("Todas as transações foram deletadas (Local)");
+    }
+
 }
