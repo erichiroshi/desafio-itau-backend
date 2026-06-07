@@ -1,4 +1,4 @@
-package com.erichiroshi.desafio_itau.application.port.output;
+package com.erichiroshi.desafio_itau.application.output;
 
 import com.erichiroshi.desafio_itau.domain.model.Estatistica;
 

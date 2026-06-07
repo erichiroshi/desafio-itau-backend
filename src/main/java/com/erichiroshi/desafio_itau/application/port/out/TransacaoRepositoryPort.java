@@ -2,6 +2,7 @@ package com.erichiroshi.desafio_itau.application.port.out;
 
 import com.erichiroshi.desafio_itau.domain.model.Transacao;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface TransacaoRepositoryPort {
@@ -10,5 +11,4 @@ public interface TransacaoRepositoryPort {
 
     void deleteAll();
 
-    List<Transacao> findAll60Seconds();
-}
+    List<Transacao> findAllAfter(OffsetDateTime from);}

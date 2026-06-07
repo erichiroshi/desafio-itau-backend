@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
         log.warn("Transação com erros | msg:{}", ex.getMessage());
 
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)

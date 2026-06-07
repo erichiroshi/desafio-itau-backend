@@ -1,6 +1,6 @@
 package com.erichiroshi.desafio_itau.infrastructure.http.response;
 
-import com.erichiroshi.desafio_itau.application.port.output.EstatisticaOutput;
+import com.erichiroshi.desafio_itau.application.output.EstatisticaOutput;
 
 public record EstatisticaResponse(
         long count,
