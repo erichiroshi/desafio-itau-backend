@@ -2,6 +2,7 @@ package com.erichiroshi.desafio_itau.infrastructure.http;
 
 import com.erichiroshi.desafio_itau.application.output.EstatisticaOutput;
 import com.erichiroshi.desafio_itau.application.port.in.EstatisticaPort;
+import com.erichiroshi.desafio_itau.infrastructure.http.docs.EstatisticaControllerDocs;
 import com.erichiroshi.desafio_itau.infrastructure.http.response.EstatisticaResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/estatistica")
 @RestController
-public class EstatisticaController {
+public class EstatisticaController implements EstatisticaControllerDocs {
 
     private final EstatisticaPort estatisticaPort;
 
