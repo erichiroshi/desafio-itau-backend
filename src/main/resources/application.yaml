@@ -2,6 +2,16 @@ spring:
   application:
     name: desafio-itau
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: when_authorized
+
+
 logging:
   level:
     com.erichiroshi: DEBUG
