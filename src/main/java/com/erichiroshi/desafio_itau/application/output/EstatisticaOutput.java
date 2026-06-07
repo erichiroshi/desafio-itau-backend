@@ -17,4 +17,8 @@ public record EstatisticaOutput(
                 estatistica.min(),
                 estatistica.max());
     }
+
+    public static EstatisticaOutput empty() {
+        return new EstatisticaOutput(0, 0., 0., 0., 0.);
+    }
 }
