@@ -2,6 +2,10 @@ spring:
   application:
     name: desafio-itau
 
+app:
+  estatistica:
+    janela-segundos: 120
+
 management:
   endpoints:
     web:

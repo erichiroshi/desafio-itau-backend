@@ -6,21 +6,26 @@ import com.erichiroshi.desafio_itau.application.port.out.TransacaoRepositoryPort
 import com.erichiroshi.desafio_itau.domain.model.Transacao;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -117,6 +122,12 @@ class UseCasesTest {
         @InjectMocks
         private EstatisticaUseCase useCase;
 
+        @BeforeEach
+        void configurarJanela() {
+            // injeta o valor do @Value sem subir contexto Spring
+            ReflectionTestUtils.setField(useCase, "janelaSegundos", 60L);
+        }
+
         @Test
         @DisplayName("deve retornar output corretamente com transações")
         void deveRetornarOutputComTransacoes() {
@@ -146,16 +157,65 @@ class UseCasesTest {
 
             assertThat(output.count()).isZero();
             assertThat(output.sum()).isZero();
+            assertThat(output.avg()).isZero();
+            assertThat(output.min()).isZero();
+            assertThat(output.max()).isZero();
         }
 
         @Test
-        @DisplayName("deve chamar findAll60Seconds exatamente uma vez")
-        void deveChamarFindAll60SecondsUmaVez() {
+        @DisplayName("deve chamar findAllAfter exatamente uma vez por execução")
+        void deveChamarFindAllAfterUmaVez() {
             when(repository.findAllAfter(any())).thenReturn(Collections.emptyList());
 
             useCase.execute();
 
             verify(repository, times(1)).findAllAfter(any());
+        }
+
+        @Test
+        @DisplayName("deve passar o OffsetDateTime correto baseado na janela configurada")
+        void devePassarOffsetDateTimeCorreto() {
+            when(repository.findAllAfter(any())).thenReturn(Collections.emptyList());
+
+            useCase.execute();
+
+            ArgumentCaptor<OffsetDateTime> captor = ArgumentCaptor.forClass(OffsetDateTime.class);
+            verify(repository).findAllAfter(captor.capture());
+
+            OffsetDateTime from = captor.getValue();
+            OffsetDateTime esperado = OffsetDateTime.now().minusSeconds(60);
+
+            // Aceita até 2s de diferença para evitar flakiness em ambientes lentos
+            assertThat(from).isCloseTo(esperado, within(2, ChronoUnit.SECONDS));
+        }
+
+        @Test
+        @DisplayName("deve registrar a métrica no MeterRegistry a cada execução")
+        void deveRegistrarMetrica() {
+            when(repository.findAllAfter(any())).thenReturn(Collections.emptyList());
+
+            useCase.execute();
+            useCase.execute();
+            useCase.execute();
+
+            var timer = meterRegistry.find("estatistica.calculo").timer();
+            assertThat(timer).isNotNull();
+            assertThat(timer.count()).isEqualTo(3);
+        }
+
+        @Test
+        @DisplayName("deve respeitar janela configurada com valor diferente de 60")
+        void deveRespeitarJanelaConfigurada() {
+            ReflectionTestUtils.setField(useCase, "janelaSegundos", 120L);
+            when(repository.findAllAfter(any())).thenReturn(Collections.emptyList());
+
+            useCase.execute();
+
+            ArgumentCaptor<OffsetDateTime> captor = ArgumentCaptor.forClass(OffsetDateTime.class);
+            verify(repository).findAllAfter(captor.capture());
+
+            OffsetDateTime esperado = OffsetDateTime.now().minusSeconds(120);
+            assertThat(captor.getValue()).isCloseTo(esperado, within(2, ChronoUnit.SECONDS));
         }
     }
 }

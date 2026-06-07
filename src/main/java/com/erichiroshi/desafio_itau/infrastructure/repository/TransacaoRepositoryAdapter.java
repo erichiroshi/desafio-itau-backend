@@ -3,6 +3,7 @@ package com.erichiroshi.desafio_itau.infrastructure.repository;
 import com.erichiroshi.desafio_itau.application.port.out.TransacaoRepositoryPort;
 import com.erichiroshi.desafio_itau.domain.model.Transacao;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
@@ -16,6 +17,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class TransacaoRepositoryAdapter implements TransacaoRepositoryPort {
 
     private final CopyOnWriteArrayList<Transacao> transacaoList = new CopyOnWriteArrayList<>();
+
+    @Value("${app.estatistica.janela-segundos:60}")
+    private long janelaSegundos;
 
     @Override
     public void save(Transacao transacao) {
@@ -40,7 +44,7 @@ public class TransacaoRepositoryAdapter implements TransacaoRepositoryPort {
     @Override
     public List<Transacao> findAllAfter(OffsetDateTime from) {
 
-        log.debug("Estatística dos últimos 60 segundos (Local)");
+        log.debug("Estatística dos últimos {} segundos (Local)", janelaSegundos);
 
         List<Transacao> list = transacaoList.stream().filter(t ->
                         t.dataHora().isAfter(from))

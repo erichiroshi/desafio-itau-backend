@@ -9,6 +9,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -21,6 +22,9 @@ public class EstatisticaUseCase implements EstatisticaPort {
 
     private final TransacaoRepositoryPort transacaoRepository;
     private final MeterRegistry meterRegistry;
+
+    @Value("${app.estatistica.janela-segundos:60}")
+    private long janelaSegundos;
 
     @Override
     public EstatisticaOutput execute() {
@@ -37,7 +41,7 @@ public class EstatisticaUseCase implements EstatisticaPort {
     }
 
     private EstatisticaOutput calcular() {
-        OffsetDateTime limiteTempo = OffsetDateTime.now().minusSeconds(60);
+        OffsetDateTime limiteTempo = OffsetDateTime.now().minusSeconds(janelaSegundos);
 
         log.debug("Buscando transações após: {}", limiteTempo);
         List<Transacao> list = transacaoRepository.findAllAfter(limiteTempo);
