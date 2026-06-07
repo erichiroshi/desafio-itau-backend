@@ -1,9 +1,14 @@
 services:
   desafio-itau:
     build: .
+    image: erichiroshi/desafio-itau:1.0.0
     container_name: desafio-itau
+    restart: unless-stopped
     ports:
       - "8080:8080"
+    environment:
+      APP_ESTATISTICA_JANELA-SEGUNDOS: 60   # altere aqui para mudar a janela
+      LOGGING_LEVEL_COM_ERICHIROSHI: DEBUG
     # Limites de recursos alinhados com o MaxRAMPercentage=75,0 do Java
     deploy:
       resources:
@@ -13,9 +18,8 @@ services:
         reservations:
           memory: 256M
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health/readiness" ]
-      interval: 30s
-      timeout: 10s
+      test: [ "CMD", "wget", "-qO-", "http://localhost:8080/actuator/health/readiness" ]
+      interval: 15s
+      timeout: 5s
       retries: 3
-      start_period: 60s
-    restart: unless-stopped
+      start_period: 40s

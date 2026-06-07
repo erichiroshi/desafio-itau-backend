@@ -4,12 +4,15 @@ import com.erichiroshi.desafio_itau.application.input.TransacaoInput;
 import com.erichiroshi.desafio_itau.application.output.EstatisticaOutput;
 import com.erichiroshi.desafio_itau.application.port.out.TransacaoRepositoryPort;
 import com.erichiroshi.desafio_itau.domain.model.Transacao;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -24,6 +27,10 @@ import static org.mockito.Mockito.*;
 @DisplayName("Use Cases - Orquestração")
 @ExtendWith(MockitoExtension.class)
 class UseCasesTest {
+
+    // ---------------------------------------------------------------
+    // TransacaoSaveUseCase
+    // ---------------------------------------------------------------
 
     @Nested
     @DisplayName("TransacaoSaveUseCase")
@@ -57,6 +64,10 @@ class UseCasesTest {
         }
     }
 
+    // ---------------------------------------------------------------
+    // TransacaoDeleteAllUseCase
+    // ---------------------------------------------------------------
+
     @Nested
     @DisplayName("TransacaoDeleteAllUseCase")
     class TransacaoDeleteAllUseCaseTest {
@@ -86,12 +97,22 @@ class UseCasesTest {
         }
     }
 
+    // ---------------------------------------------------------------
+    // EstatisticaUseCase
+    // ---------------------------------------------------------------
+
     @Nested
     @DisplayName("EstatisticaUseCase")
     class EstatisticaUseCaseTest {
 
         @Mock
         private TransacaoRepositoryPort repository;
+
+        // SimpleMeterRegistry é um MeterRegistry real em memória — sem servidor externo.
+        // Usamos @Spy em vez de @Mock para que o Timer.builder().register() funcione de
+        // verdade, já que o Micrometer usa o registry internamente de forma não-trivial.
+        @Spy
+        private MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
         @InjectMocks
         private EstatisticaUseCase useCase;
